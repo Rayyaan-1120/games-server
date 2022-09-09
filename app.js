@@ -74,6 +74,10 @@ app.use(express.json());
 
 app.use("/api", router);
 
+app.get("/", (req, res) => {
+  res.send("Application is working");
+});
+
 app.all("*", (req, res, next) => {
   res.status(500).json({
     message: `Could Not Find ${req.originalUrl} on the server`,
