@@ -25,6 +25,11 @@ const {
   getscripts,
   deletescript,
   editscript,
+  createslidertext,
+  editslidertext,
+  getslidertext,
+  gethomepagegames,
+  updateadmin,
 } = require("./apis/apicontroller");
 const multer = require("./utils/multer");
 
@@ -45,6 +50,8 @@ router.put(
 );
 
 router.get("/games", getAllgames);
+
+router.get("/gethomepagegames", gethomepagegames);
 
 router.get("/categorygames/:categoryid", getcategorygames);
 
@@ -85,6 +92,8 @@ router.post("/createadmin", createadmin);
 
 router.post("/loginadmin", loginadmin);
 
+router.put("/updateadmin", updateadmin);
+
 router.post("/createscript", createscript);
 
 router.put("/editscript/:scriptid", editscript);
@@ -92,6 +101,12 @@ router.put("/editscript/:scriptid", editscript);
 router.get("/getscripts", getscripts);
 
 router.delete("/deletescript/:scriptid", deletescript);
+
+router.post("/createslidertext", createslidertext);
+
+router.put("/editslidertext/:slidertextid", editslidertext);
+
+router.get("/getslidertext", getslidertext);
 
 app.use(cors());
 

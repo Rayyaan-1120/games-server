@@ -8,6 +8,7 @@ const Column = require("../models/columnModel");
 const Admin = require("../models/adminModel");
 const bcrypt = require("bcrypt");
 const Script = require("../models/scriptModel");
+const Slidertext = require("../models/slidertextModel");
 
 exports.creategame = catchAsync(async (req, res, next) => {
   console.log(req.file);
@@ -148,6 +149,16 @@ exports.deletegame = catchAsync(async (req, res, next) => {
 
 exports.getAllgames = catchAsync(async (req, res, next) => {
   const games = await Game.find({});
+
+  res.status(200).json({
+    data: games,
+  });
+});
+
+exports.gethomepagegames = catchAsync(async (req, res, next) => {
+  const gamecategory = await Gamecategory.find({});
+
+  const games = await Game.find({ gamecategoryid: gamecategory[0]?._id });
 
   res.status(200).json({
     data: games,
@@ -423,6 +434,32 @@ exports.loginadmin = catchAsync(async (req, res, next) => {
   }
 });
 
+exports.updateadmin = catchAsync(async (req, res, next) => {
+  const { oldpassword, newpassword } = req.body;
+
+  const admin = await Admin.find({});
+
+  if (admin) {
+    const admintrue = await bcrypt.compare(oldpassword, admin[0].password);
+
+    if (!admintrue) {
+      return res.status(401).json({
+        message: "Please enter the correct password and try again",
+      });
+    }
+
+    const hashpassword = await bcrypt.hash(newpassword, 12);
+
+    await Admin.findByIdAndUpdate(admin[0]?._id, {
+      password: hashpassword,
+    });
+
+    res.status(200).json({
+      message: "Password updated successfully",
+    });
+  }
+});
+
 exports.createscript = catchAsync(async (req, res, next) => {
   const { src, id } = req.body;
 
@@ -463,6 +500,40 @@ exports.deletescript = catchAsync(async (req, res, next) => {
 
 exports.getscripts = catchAsync(async (req, res, next) => {
   const scripts = await Script.find({});
+
+  res.status(200).json({
+    data: scripts,
+  });
+});
+
+exports.createslidertext = catchAsync(async (req, res, next) => {
+  const { text } = req.body;
+
+  const newslidertext = await Slidertext.create({
+    text,
+  });
+
+  res.status(200).json({
+    data: newslidertext,
+  });
+});
+
+exports.editslidertext = catchAsync(async (req, res, next) => {
+  const { slidertextid } = req.params;
+
+  const { text } = req.body;
+
+  const editscript = await Slidertext.findByIdAndUpdate(slidertextid, {
+    text,
+  });
+
+  res.status(200).json({
+    data: editscript,
+  });
+});
+
+exports.getslidertext = catchAsync(async (req, res, next) => {
+  const scripts = await Slidertext.find({});
 
   res.status(200).json({
     data: scripts,
