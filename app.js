@@ -13,9 +13,18 @@ const {
   getcategorygames,
   createarticle,
   editarticle,
-  getarticle,
   deletearticle,
   getAllarticles,
+  createcolumn,
+  editcolumn,
+  getcolumn,
+  deletecolumn,
+  createadmin,
+  loginadmin,
+  createscript,
+  getscripts,
+  deletescript,
+  editscript,
 } = require("./apis/apicontroller");
 const multer = require("./utils/multer");
 
@@ -60,11 +69,29 @@ router.post("/createarticle", createarticle);
 
 router.put("/editarticle/:articleid", editarticle);
 
-router.get("/getarticle/:categoryid", getarticle);
-
 router.get("/getarticles", getAllarticles);
 
 router.delete("/deletearticle/:articleid", deletearticle);
+
+router.post("/createcolumn", createcolumn);
+
+router.put("/editcolumn/:columnid", editcolumn);
+
+router.get("/getcolumn", getcolumn);
+
+router.delete("/deletecolumn/:columnid", deletecolumn);
+
+router.post("/createadmin", createadmin);
+
+router.post("/loginadmin", loginadmin);
+
+router.post("/createscript", createscript);
+
+router.put("/editscript/:scriptid", editscript);
+
+router.get("/getscripts", getscripts);
+
+router.delete("/deletescript/:scriptid", deletescript);
 
 app.use(cors());
 

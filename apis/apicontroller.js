@@ -4,6 +4,10 @@ const Game = require("../models/gameModel");
 const Gamecategory = require("../models/gamecategoryModel");
 const fs = require("fs");
 const Article = require("../models/articleModel");
+const Column = require("../models/columnModel");
+const Admin = require("../models/adminModel");
+const bcrypt = require("bcrypt");
+const Script = require("../models/scriptModel");
 
 exports.creategame = catchAsync(async (req, res, next) => {
   console.log(req.file);
@@ -22,7 +26,9 @@ exports.creategame = catchAsync(async (req, res, next) => {
     orangetitle,
     note,
     buttonone,
+    buttononelink,
     buttontwo,
+    buttontwolink,
   } = req.body;
 
   const photo = await cloudinary.uploader.upload(req.file.path);
@@ -41,6 +47,8 @@ exports.creategame = catchAsync(async (req, res, next) => {
     note,
     buttonone,
     buttontwo,
+    buttononelink,
+    buttontwolink,
   });
 
   fs.unlinkSync(req.file.path);
@@ -66,7 +74,9 @@ exports.editgame = catchAsync(async (req, res, next) => {
     orangetitle,
     note,
     buttonone,
+    buttononelink,
     buttontwo,
+    buttontwolink,
   } = req.body;
 
   const game = await Game.findById(id);
@@ -93,11 +103,13 @@ exports.editgame = catchAsync(async (req, res, next) => {
       note,
       buttonone,
       buttontwo,
+      buttononelink,
+      buttontwolink,
     },
     { new: true }
   );
 
-  if (req.file.path) {
+  if (req.file) {
     fs.unlinkSync(req.file.path);
   }
 
@@ -208,7 +220,7 @@ exports.editgamecategory = catchAsync(async (req, res, next) => {
     { new: true }
   );
 
-  if (req.file.path) {
+  if (req.file) {
     fs.unlinkSync(req.file.path);
   }
 
@@ -246,12 +258,11 @@ exports.deletegamecategory = catchAsync(async (req, res, next) => {
 });
 
 exports.createarticle = catchAsync(async (req, res, next) => {
-  const { article, articleheading, articlecategoryid } = req.body;
+  const { article, articleheading } = req.body;
 
   const newarticle = await Article.create({
     article,
     articleheading,
-    articlecategoryid,
   });
 
   res.status(200).json({
@@ -262,26 +273,15 @@ exports.createarticle = catchAsync(async (req, res, next) => {
 exports.editarticle = catchAsync(async (req, res, next) => {
   const { articleid } = req.params;
 
-  const { article, articlecategoryid, articleheading } = req.body;
+  const { article, articleheading } = req.body;
 
   const newarticle = await Article.findByIdAndUpdate(articleid, {
     article,
     articleheading,
-    articlecategoryid,
   });
 
   res.status(200).json({
     data: newarticle,
-  });
-});
-
-exports.getarticle = catchAsync(async (req, res, next) => {
-  const { categoryid } = req.params;
-
-  const article = await Article.find({ articlecategoryid: categoryid });
-
-  res.status(200).json({
-    data: article,
   });
 });
 
@@ -300,5 +300,171 @@ exports.getAllarticles = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     data: articles,
+  });
+});
+
+exports.createcolumn = catchAsync(async (req, res, next) => {
+  const {
+    columnoneheading,
+    columnonetextone,
+    columnonetexttwo,
+    columntwoheading,
+    columntwotextone,
+    columntwotexttwo,
+    columnthreeheading,
+    columnthreebuttonone,
+    columnthreebuttononelink,
+    columnthreebuttontwo,
+    columnthreebuttontwolink,
+  } = req.body;
+
+  const newcolumn = await Column.create({
+    columnoneheading,
+    columnonetextone,
+    columnonetexttwo,
+    columntwoheading,
+    columntwotextone,
+    columntwotexttwo,
+    columnthreeheading,
+    columnthreebuttonone,
+    columnthreebuttononelink,
+    columnthreebuttontwo,
+    columnthreebuttontwolink,
+  });
+
+  res.status(200).json({
+    data: newcolumn,
+  });
+});
+
+exports.editcolumn = catchAsync(async (req, res, next) => {
+  const { columnid } = req.params;
+
+  const {
+    columnoneheading,
+    columnonetextone,
+    columnonetexttwo,
+    columntwoheading,
+    columntwotextone,
+    columntwotexttwo,
+    columnthreeheading,
+    columnthreebuttonone,
+    columnthreebuttononelink,
+    columnthreebuttontwo,
+    columnthreebuttontwolink,
+  } = req.body;
+
+  const editcolumn = await Column.findByIdAndUpdate(columnid, {
+    columnoneheading,
+    columnonetextone,
+    columnonetexttwo,
+    columntwoheading,
+    columntwotextone,
+    columntwotexttwo,
+    columnthreeheading,
+    columnthreebuttonone,
+    columnthreebuttononelink,
+    columnthreebuttontwo,
+    columnthreebuttontwolink,
+  });
+
+  res.status(200).json({
+    data: editcolumn,
+  });
+});
+
+exports.deletecolumn = catchAsync(async (req, res, next) => {
+  const { columnid } = req.params;
+
+  await Column.findByIdAndDelete(columnid);
+
+  res.status(204).json({
+    message: "Column deleted successfully",
+  });
+});
+
+exports.getcolumn = catchAsync(async (req, res, next) => {
+  const column = await Column.find({});
+
+  res.status(200).json({
+    data: column,
+  });
+});
+
+exports.createadmin = catchAsync(async (req, res, next) => {
+  const { password } = req.body;
+
+  const newadmin = await Admin.create({
+    password,
+  });
+
+  res.status(200).json({
+    data: newadmin,
+  });
+});
+
+exports.loginadmin = catchAsync(async (req, res, next) => {
+  const { password } = req.body;
+
+  const admin = await Admin.find({});
+
+  if (admin) {
+    const admintrue = await bcrypt.compare(password, admin[0].password);
+
+    if (!admintrue) {
+      return res.status(401).json({
+        message: "Please enter the correct password and try again",
+      });
+    }
+
+    res.status(200).json({
+      data: admin[0],
+    });
+  }
+});
+
+exports.createscript = catchAsync(async (req, res, next) => {
+  const { src, id } = req.body;
+
+  const newscript = await Script.create({
+    src,
+    id,
+  });
+
+  res.status(200).json({
+    data: newscript,
+  });
+});
+
+exports.editscript = catchAsync(async (req, res, next) => {
+  const { scriptid } = req.params;
+
+  const { src, id } = req.body;
+
+  const editscript = await Script.findByIdAndUpdate(scriptid, {
+    src,
+    id,
+  });
+
+  res.status(200).json({
+    data: editscript,
+  });
+});
+
+exports.deletescript = catchAsync(async (req, res, next) => {
+  const { scriptid } = req.params;
+
+  await Script.findByIdAndDelete(scriptid);
+
+  res.status(204).json({
+    message: "Script deleted successfully",
+  });
+});
+
+exports.getscripts = catchAsync(async (req, res, next) => {
+  const scripts = await Script.find({});
+
+  res.status(200).json({
+    data: scripts,
   });
 });
