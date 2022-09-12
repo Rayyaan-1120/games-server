@@ -11,6 +11,9 @@ const gameschema = new mongoose.Schema({
   gameimage: {
     type: String,
   },
+  imagealttag: {
+    type: String,
+  },
   imagepublicid: {
     type: String,
   },

@@ -4,6 +4,9 @@ const gamecategoryschema = new mongoose.Schema({
   gamecategoryname: {
     type: String,
   },
+  imagealttag: {
+    type: String,
+  },
   gamecategoryimage: {
     type: String,
   },

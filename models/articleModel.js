@@ -7,6 +7,10 @@ const articleschema = new mongoose.Schema({
   articleheading: {
     type: String,
   },
+  articlecategoryid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Gamecategory",
+  },
 });
 
 const Article = mongoose.model("Article", articleschema);

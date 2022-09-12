@@ -19,6 +19,7 @@ exports.creategame = catchAsync(async (req, res, next) => {
   const {
     gamename,
     gamecategoryid,
+    imagealttag,
     topyellowtitle,
     provider,
     stake,
@@ -36,6 +37,7 @@ exports.creategame = catchAsync(async (req, res, next) => {
 
   const newgame = await Game.create({
     gamename,
+    imagealttag,
     gamecategoryid: gamecategoryid,
     gameimage: photo.secure_url,
     imagepublicid: photo.public_id,
@@ -67,6 +69,7 @@ exports.editgame = catchAsync(async (req, res, next) => {
   const {
     gamename,
     gamecategoryid,
+    imagealttag,
     topyellowtitle,
     provider,
     stake,
@@ -92,6 +95,7 @@ exports.editgame = catchAsync(async (req, res, next) => {
     id,
     {
       gamename,
+      imagealttag,
       gamecategoryid: gamecategoryid,
       gameimage: req.file ? photo.secure_url : game.gameimage,
       imagepublicid: req.file ? photo.public_id : game.imagepublicid,
@@ -181,12 +185,13 @@ exports.creategamecategory = catchAsync(async (req, res, next) => {
     return res.status(404).send("Please provide the game category image");
   }
 
-  const { gamecategoryname } = req.body;
+  const { gamecategoryname, imagealttag } = req.body;
 
   const photo = await cloudinary.uploader.upload(req.file.path);
 
   const newgamecategory = await Gamecategory.create({
     gamecategoryname,
+    imagealttag,
     gamecategoryimage: photo.secure_url,
     imagepublicid: photo.public_id,
   });
@@ -211,7 +216,7 @@ exports.editgamecategory = catchAsync(async (req, res, next) => {
 
   const { id } = req.params;
 
-  const { gamecategoryname } = req.body;
+  const { gamecategoryname, imagealttag } = req.body;
 
   const gamecategory = await Gamecategory.findById(id);
 
@@ -225,6 +230,7 @@ exports.editgamecategory = catchAsync(async (req, res, next) => {
     id,
     {
       gamecategoryname,
+      imagealttag,
       gamecategoryimage: req.file ? photo.secure_url : gamecategory.gameimage,
       imagepublicid: req.file ? photo.public_id : gamecategory.imagepublicid,
     },
@@ -269,11 +275,12 @@ exports.deletegamecategory = catchAsync(async (req, res, next) => {
 });
 
 exports.createarticle = catchAsync(async (req, res, next) => {
-  const { article, articleheading } = req.body;
+  const { article, articleheading, articlecategoryid } = req.body;
 
   const newarticle = await Article.create({
     article,
     articleheading,
+    articlecategoryid,
   });
 
   res.status(200).json({
@@ -284,15 +291,38 @@ exports.createarticle = catchAsync(async (req, res, next) => {
 exports.editarticle = catchAsync(async (req, res, next) => {
   const { articleid } = req.params;
 
-  const { article, articleheading } = req.body;
+  const { article, articleheading, articlecategoryid } = req.body;
 
   const newarticle = await Article.findByIdAndUpdate(articleid, {
     article,
     articleheading,
+    articlecategoryid,
   });
 
   res.status(200).json({
     data: newarticle,
+  });
+});
+
+exports.gethomepagearticle = catchAsync(async (req, res, next) => {
+  const gamecategory = await Gamecategory.find({});
+
+  const article = await Article.find({
+    articlecategoryid: gamecategory[0]?._id,
+  });
+
+  res.status(200).json({
+    data: article,
+  });
+});
+
+exports.getcategoryarticle = catchAsync(async (req, res, next) => {
+  const { categoryid } = req.params;
+
+  const articles = await Article.find({ articlecategoryid: categoryid });
+
+  res.status(200).json({
+    data: articles,
   });
 });
 

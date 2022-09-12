@@ -30,6 +30,8 @@ const {
   getslidertext,
   gethomepagegames,
   updateadmin,
+  gethomepagearticle,
+  getcategoryarticle,
 } = require("./apis/apicontroller");
 const multer = require("./utils/multer");
 
@@ -75,6 +77,10 @@ router.delete("/deletegamecategory/:publicId", deletegamecategory);
 router.post("/createarticle", createarticle);
 
 router.put("/editarticle/:articleid", editarticle);
+
+router.get("/gethomepagearticle", gethomepagearticle);
+
+router.get("/getarticle/:categoryid", getcategoryarticle);
 
 router.get("/getarticles", getAllarticles);
 
