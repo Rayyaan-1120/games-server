@@ -40,15 +40,19 @@ const gameschema = new mongoose.Schema({
   },
   buttonone: {
     type: String,
+    default: "",
   },
   buttononelink: {
     type: String,
+    default: "",
   },
   buttontwo: {
     type: String,
+    default: "",
   },
   buttontwolink: {
     type: String,
+    default: "",
   },
 });
 

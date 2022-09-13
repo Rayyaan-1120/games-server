@@ -123,6 +123,29 @@ exports.editgame = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.updatebuttonlinkglobally = catchAsync(async (req, res, next) => {
+  const { buttonlinkone, buttonlinktwo } = req.body;
+
+  console.log(req.body);
+
+  const games = await Game.find({
+    gamename: { $gte: " " },
+    gameimage: { $gte: " " },
+  }).count();
+  console.log(games, "gbuttonlinkoneames");
+
+  const data = await Game.updateMany(
+    {},
+    { $set: { buttononelink: buttonlinkone, buttontwolink: buttonlinktwo } }
+  );
+
+  console.log(data, "games");
+
+  res.status(200).json({
+    message: "Documents updated successfully",
+  });
+});
+
 exports.deletegame = catchAsync(async (req, res, next) => {
   const { publicId } = req.params;
 

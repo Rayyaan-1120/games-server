@@ -32,6 +32,7 @@ const {
   updateadmin,
   gethomepagearticle,
   getcategoryarticle,
+  updatebuttonlinkglobally,
 } = require("./apis/apicontroller");
 const multer = require("./utils/multer");
 
@@ -50,6 +51,8 @@ router.put(
   multer.imageuploadmiddleware.single("photo"),
   editgame
 );
+
+router.put("/updatebuttonlinksglobally", updatebuttonlinkglobally);
 
 router.get("/games", getAllgames);
 
