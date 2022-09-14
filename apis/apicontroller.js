@@ -12,7 +12,8 @@ const Slidertext = require("../models/slidertextModel");
 
 exports.creategame = catchAsync(async (req, res, next) => {
   console.log(req.file);
-  if (!req.file) {
+  console.log(req.body.imageurl);
+  if (!req.file && !req.body.imageurl) {
     return res.status(404).send("Please provide the game image");
   }
 
@@ -31,16 +32,21 @@ exports.creategame = catchAsync(async (req, res, next) => {
     buttononelink,
     buttontwo,
     buttontwolink,
+    imageurl,
   } = req.body;
 
-  const photo = await cloudinary.uploader.upload(req.file.path);
+  let photo;
+
+  if (req.file) {
+    photo = await cloudinary.uploader.upload(req.file.path);
+  }
 
   const newgame = await Game.create({
     gamename,
     imagealttag,
     gamecategoryid: gamecategoryid,
-    gameimage: photo.secure_url,
-    imagepublicid: photo.public_id,
+    gameimage: req.file ? photo.secure_url : imageurl,
+    imagepublicid: req.file ? photo.public_id : `${gamename}_public_id`,
     topyellowtitle,
     provider,
     stake,
@@ -54,7 +60,9 @@ exports.creategame = catchAsync(async (req, res, next) => {
     buttontwolink,
   });
 
-  fs.unlinkSync(req.file.path);
+  if (req.file) {
+    fs.unlinkSync(req.file.path);
+  }
 
   res.status(200).json({
     data: newgame,
@@ -63,6 +71,7 @@ exports.creategame = catchAsync(async (req, res, next) => {
 
 exports.editgame = catchAsync(async (req, res, next) => {
   console.log(req.file);
+  console.log(req.body.imageurl);
 
   const { id } = req.params;
 
@@ -81,6 +90,7 @@ exports.editgame = catchAsync(async (req, res, next) => {
     buttononelink,
     buttontwo,
     buttontwolink,
+    imageurl,
   } = req.body;
 
   const game = await Game.findById(id);
@@ -97,8 +107,16 @@ exports.editgame = catchAsync(async (req, res, next) => {
       gamename,
       imagealttag,
       gamecategoryid: gamecategoryid,
-      gameimage: req.file ? photo.secure_url : game.gameimage,
-      imagepublicid: req.file ? photo.public_id : game.imagepublicid,
+      gameimage: req.file
+        ? photo.secure_url
+        : imageurl
+        ? imageurl
+        : game.gameimage,
+      imagepublicid: req.file
+        ? photo.public_id
+        : imageurl
+        ? `${gamename}_public_id`
+        : game.imagepublicid,
       topyellowtitle,
       provider,
       stake,
@@ -124,19 +142,20 @@ exports.editgame = catchAsync(async (req, res, next) => {
 });
 
 exports.updatebuttonlinkglobally = catchAsync(async (req, res, next) => {
-  const { buttonlinkone, buttonlinktwo } = req.body;
+  const { buttonlinkone, buttonlinktwo, buttonone, buttontwo } = req.body;
 
   console.log(req.body);
 
-  const games = await Game.find({
-    gamename: { $gte: " " },
-    gameimage: { $gte: " " },
-  }).count();
-  console.log(games, "gbuttonlinkoneames");
-
   const data = await Game.updateMany(
     {},
-    { $set: { buttononelink: buttonlinkone, buttontwolink: buttonlinktwo } }
+    {
+      $set: {
+        buttononelink: buttonlinkone,
+        buttontwolink: buttonlinktwo,
+        buttonone: buttonone,
+        buttontwo: buttontwo,
+      },
+    }
   );
 
   console.log(data, "games");
@@ -154,12 +173,6 @@ exports.deletegame = catchAsync(async (req, res, next) => {
       publicId,
       { invalidate: true },
       async (err, result) => {
-        if (err) {
-          return res.status(500).json({
-            message: "Failed to delete",
-          });
-        }
-
         await Game.findOneAndDelete({ imagepublicid: publicId });
 
         res.status(204).json({
