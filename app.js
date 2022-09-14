@@ -33,6 +33,8 @@ const {
   gethomepagearticle,
   getcategoryarticle,
   updatebuttonlinkglobally,
+  getButton,
+  createButton,
 } = require("./apis/apicontroller");
 const multer = require("./utils/multer");
 
@@ -116,6 +118,9 @@ router.post("/createslidertext", createslidertext);
 router.put("/editslidertext/:slidertextid", editslidertext);
 
 router.get("/getslidertext", getslidertext);
+
+// router.post("/createButton", createButton);
+router.get("/getButton", getButton);
 
 app.use(cors());
 

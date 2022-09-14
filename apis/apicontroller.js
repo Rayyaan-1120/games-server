@@ -9,6 +9,7 @@ const Admin = require("../models/adminModel");
 const bcrypt = require("bcrypt");
 const Script = require("../models/scriptModel");
 const Slidertext = require("../models/slidertextModel");
+const Button = require("../models/buttonModel");
 
 exports.creategame = catchAsync(async (req, res, next) => {
   console.log(req.file);
@@ -41,6 +42,8 @@ exports.creategame = catchAsync(async (req, res, next) => {
     photo = await cloudinary.uploader.upload(req.file.path);
   }
 
+  const button = await Button.find({});
+
   const newgame = await Game.create({
     gamename,
     imagealttag,
@@ -54,10 +57,10 @@ exports.creategame = catchAsync(async (req, res, next) => {
     paragraph,
     orangetitle,
     note,
-    buttonone,
-    buttontwo,
-    buttononelink,
-    buttontwolink,
+    buttonone: button[0].buttonone,
+    buttontwo: button[0].buttontwo,
+    buttononelink: button[0].buttononelink,
+    buttontwolink: button[0].buttontwolink,
   });
 
   if (req.file) {
@@ -145,6 +148,18 @@ exports.updatebuttonlinkglobally = catchAsync(async (req, res, next) => {
   const { buttonlinkone, buttonlinktwo, buttonone, buttontwo } = req.body;
 
   console.log(req.body);
+
+  await Button.updateMany(
+    {},
+    {
+      $set: {
+        buttononelink: buttonlinkone,
+        buttontwolink: buttonlinktwo,
+        buttonone: buttonone,
+        buttontwo: buttontwo,
+      },
+    }
+  );
 
   const data = await Game.updateMany(
     {},
@@ -603,5 +618,27 @@ exports.getslidertext = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     data: scripts,
+  });
+});
+
+exports.createButton = catchAsync(async (req, res, next) => {
+  const { buttonone, buttontwo, buttononelink, buttontwolink } = req.body;
+
+  const button = await Button.create({
+    buttonone,
+    buttontwo,
+    buttononelink,
+    buttontwolink,
+  });
+
+  res.status(200).json({
+    data: button,
+  });
+});
+exports.getButton = catchAsync(async (req, res, next) => {
+  const button = await Button.find({});
+
+  res.status(200).json({
+    data: button[0],
   });
 });
